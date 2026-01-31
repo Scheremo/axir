@@ -1,0 +1,11 @@
+build/
+third_party/llvm-project/build/
+*.o
+*.a
+*.so
+*.dylib
+*.pyc
+__pycache__/
+.DS_Store
+compile_commands.json
+.cache/

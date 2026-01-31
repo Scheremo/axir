@@ -1,0 +1,11 @@
+set(LLVM_TARGET_DEFINITIONS axirOps.td)
+mlir_tablegen(axirOps.h.inc -gen-op-decls)
+mlir_tablegen(axirOps.cpp.inc -gen-op-defs)
+mlir_tablegen(axirDialect.h.inc -gen-dialect-decls)
+mlir_tablegen(axirDialect.cpp.inc -gen-dialect-defs)
+add_public_tablegen_target(axirOpsIncGen)
+
+set(LLVM_TARGET_DEFINITIONS axirTypes.td)
+mlir_tablegen(axirTypes.h.inc -gen-typedef-decls)
+mlir_tablegen(axirTypes.cpp.inc -gen-typedef-defs)
+add_public_tablegen_target(axirTypesIncGen)
