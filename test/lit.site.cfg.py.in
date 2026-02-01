@@ -2,11 +2,11 @@
 
 import sys
 
-config.llvm_tools_dir = lit_config.substitute("@LLVM_TOOLS_DIR@")
+config.llvm_tools_dir = "@LLVM_DIR@/../../../bin"
 config.mlir_obj_dir = "@MLIR_BINARY_DIR@"
-config.axir_src_dir = "@CMAKE_SOURCE_DIR@"
-config.axir_obj_dir = "@CMAKE_BINARY_DIR@"
-config.axir_tools_dir = "@CMAKE_BINARY_DIR@/bin"
+config.axi4_src_dir = "@CMAKE_SOURCE_DIR@"
+config.axi4_obj_dir = "@CMAKE_BINARY_DIR@"
+config.axi4_tools_dir = "@CMAKE_BINARY_DIR@/bin"
 config.suffixes = ['.mlir']
 
 import lit.llvm

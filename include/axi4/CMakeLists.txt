@@ -1,0 +1,31 @@
+set(LLVM_TARGET_DEFINITIONS axi4Types.td)
+mlir_tablegen(axi4Types.h.inc -gen-typedef-decls)
+mlir_tablegen(axi4Types.cpp.inc -gen-typedef-defs)
+add_public_tablegen_target(axi4TypesIncGen)
+
+set(LLVM_TARGET_DEFINITIONS axi4Attrs.td)
+mlir_tablegen(axi4Attrs.h.inc -gen-attrdef-decls)
+mlir_tablegen(axi4Attrs.cpp.inc -gen-attrdef-defs)
+mlir_tablegen(axi4Enums.h.inc -gen-enum-decls)
+mlir_tablegen(axi4Enums.cpp.inc -gen-enum-defs)
+add_public_tablegen_target(axi4AttrsIncGen)
+
+set(LLVM_TARGET_DEFINITIONS axi4Interfaces.td)
+mlir_tablegen(axi4Interfaces.h.inc -gen-op-interface-decls)
+mlir_tablegen(axi4Interfaces.cpp.inc -gen-op-interface-defs)
+add_public_tablegen_target(axi4InterfacesIncGen)
+
+set(LLVM_TARGET_DEFINITIONS axi4Ops.td)
+mlir_tablegen(axi4Ops.h.inc -gen-op-decls)
+mlir_tablegen(axi4Ops.cpp.inc -gen-op-defs)
+mlir_tablegen(axi4Dialect.h.inc -gen-dialect-decls)
+mlir_tablegen(axi4Dialect.cpp.inc -gen-dialect-defs)
+add_public_tablegen_target(axi4OpsIncGen)
+
+set(LLVM_TARGET_DEFINITIONS axi4Passes.td)
+mlir_tablegen(axi4Passes.h.inc -gen-pass-decls -name Axi4)
+add_public_tablegen_target(axi4PassesIncGen)
+
+add_dependencies(axi4InterfacesIncGen axi4AttrsIncGen)
+add_dependencies(axi4OpsIncGen axi4InterfacesIncGen)
+add_dependencies(axi4PassesIncGen axi4OpsIncGen)

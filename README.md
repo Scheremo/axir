@@ -1,35 +1,50 @@
-# axir
+# axi4
 
-An MLIR dialect project template.
+AXI4 declarative interconnect dialect for MLIR.
 
 ## Contents
 
 ```
-axir/
+axi4/
 ├── CMakeLists.txt                 # Top-level CMake configuration
 ├── cmake/modules/
-│   └── Addaxir.cmake              # Helper CMake functions
-├── include/axir/
+│   └── Addaxi4.cmake              # Helper CMake functions
+├── include/axi4/
 │   ├── CMakeLists.txt             # TableGen generation rules
-│   ├── axirDialect.td             # Dialect definition (TableGen)
-│   ├── axirDialect.h              # Dialect C++ header
-│   ├── axirOps.td                 # Operations definition (TableGen)
-│   ├── axirOps.h                  # Operations C++ header
-│   ├── axirTypes.td               # Types definition (TableGen)
-│   └── axirTypes.h                # Types C++ header
-├── lib/axir/
+│   ├── axi4Dialect.td             # Dialect definition
+│   ├── axi4Dialect.h              # Dialect C++ header
+│   ├── axi4Ops.td                 # Operations definition
+│   ├── axi4Ops.h                  # Operations C++ header
+│   ├── axi4Types.td               # Types definition
+│   ├── axi4Types.h                # Types C++ header
+│   ├── axi4Attrs.td               # Attributes definition
+│   ├── axi4Attrs.h                # Attributes C++ header
+│   ├── axi4Interfaces.td          # Op interfaces definition
+│   ├── axi4Interfaces.h           # Op interfaces C++ header
+│   ├── axi4Passes.td              # Pass definitions
+│   ├── axi4Passes.h               # Pass C++ header
+│   ├── axi4Analysis.h             # Analysis utilities header
+│   └── INTENT.md                  # Dialect specification
+├── lib/axi4/
 │   ├── CMakeLists.txt             # Library build rules
-│   ├── axirDialect.cpp            # Dialect initialization
-│   └── axirOps.cpp                # Operations implementation
-├── tools/axir-opt/
+│   ├── axi4Dialect.cpp            # Dialect initialization
+│   ├── axi4Ops.cpp                # Operations implementation
+│   ├── axi4Interfaces.cpp         # Interfaces implementation
+│   ├── axi4Passes.cpp             # Pass implementations
+│   └── axi4Analysis.cpp           # Analysis utilities
+├── tools/axi4-opt/
 │   ├── CMakeLists.txt             # Tool build rules
-│   └── axir-opt.cpp               # Optimizer driver
-└── test/
-    ├── CMakeLists.txt             # Test configuration
-    ├── lit.cfg.py                 # Lit test runner config
-    ├── lit.site.cfg.py.in         # Lit site config template
-    └── axir/
-        └── basic.mlir             # Example test
+│   └── axi4-opt.cpp               # Optimizer driver
+├── examples/
+│   └── chimera.mlir               # Example SoC interconnect
+└── test/axi4/
+    ├── basic.mlir                 # Positive tests
+    ├── basic-error.mlir           # Op-level error tests
+    ├── network-verify.mlir        # Network verification tests
+    ├── loop-free.mlir             # Loop detection tests
+    ├── alias.mlir                 # Alias operation tests
+    ├── canonicalize-adapters.mlir # Adapter canonicalization tests
+    └── mesh-noc.mlir              # Mesh NoC topology example
 ```
 
 ## Prerequisites
@@ -43,8 +58,8 @@ axir/
 ### 1. Clone with submodules
 
 ```bash
-git clone --recursive https://github.com/user/axir.git
-cd axir
+git clone --recursive https://github.com/Scheremo/axir.git
+cd axi4
 ```
 
 Or if already cloned:
@@ -69,80 +84,204 @@ ninja
 cd ../../..
 ```
 
-### 3. Build axir
+### 3. Build axi4
 
 ```bash
 mkdir build && cd build
 
-cmake .. \
+cmake -G Ninja .. \
   -DMLIR_DIR=$(pwd)/../third_party/llvm-project/build/lib/cmake/mlir \
   -DCMAKE_BUILD_TYPE=Release
 
-cmake --build .
+ninja all
 ```
 
-### 4. Run Tests (optional)
+### 4. Run Tests
 
 ```bash
-cmake --build . --target check-axir
+ninja check-axi4
 ```
 
-## Getting Started
+## Overview
 
-### Using the Dialect
+The axi4 dialect models AXI4 interconnects declaratively:
 
-The axir dialect registers under the namespace `axir`. After building, use `axir-opt` to parse and transform `.mlir` files:
+- **Endpoints**: `axi4.manager` and `axi4.subordinate` define bus participants
+- **Networks**: `axi4.xbar` defines crossbar networks with configurable policies
+- **Adapters**: Width converters, CDC, burst splitters, exclusive monitors
+- **Bridges**: `axi4.bridge` connects networks hierarchically
 
-```bash
-./build/bin/axir-opt input.mlir
-```
+See `include/axi4/INTENT.md` for the full specification.
 
-### Example
+## Types
+
+| Type | Description |
+|------|-------------|
+| `!axi4.clock` | Clock domain reference |
+| `!axi4.manager` | Manager (initiator) endpoint handle |
+| `!axi4.subordinate` | Subordinate (target) endpoint handle |
+| `!axi4.xbar` | Crossbar network handle |
+
+## Operations
+
+### Endpoints
+
+| Operation | Description |
+|-----------|-------------|
+| `axi4.clock` | Declares a clock domain |
+| `axi4.manager` | Declares a manager endpoint with access windows, burst capabilities |
+| `axi4.subordinate` | Declares a subordinate endpoint with address window, outstanding capacity |
+| `axi4.error_subordinate` | Synthetic subordinate that responds with errors |
+
+### Networks
+
+| Operation | Description |
+|-----------|-------------|
+| `axi4.xbar` | Crossbar network connecting managers to subordinates |
+
+### Adapters
+
+| Operation | Description |
+|-----------|-------------|
+| `axi4.resizer` | Converts interface data width (and scales burst lengths accordingly) |
+| `axi4.burst_splitter` | Splits long bursts into shorter bursts |
+| `axi4.cdc` | Clock domain crossing |
+| `axi4.exclusive_monitor` | Adds exclusive access support to non-exclusive subordinates |
+
+### Bridges
+
+| Operation | Description |
+|-----------|-------------|
+| `axi4.bridge` | Bidirectional bridge between crossbars |
+
+## Attributes
+
+### Custom Attributes
+
+| Attribute | Description |
+|-----------|-------------|
+| `#axi4.window<base, size>` | Address window (half-open interval) |
+| `#axi4.burst_capability<incr, fixed, wrap>` | Supported burst types and lengths |
+
+### Enum Attributes
+
+| Attribute | Values |
+|-----------|--------|
+| `#axi4.txn_policy<...>` | `expand`, `serialize`, `pool` |
+| `#axi4.capacity_check<...>` | `warn`, `error` |
+| `#axi4.exclusive_mode<...>` | `strict`, `advisory` |
+| `#axi4.arbitration<...>` | `rr`, `wrr`, `priority` |
+| `#axi4.error_response<...>` | `decerr`, `slverr` |
+| `#axi4.cdc_mode<...>` | `async`, `sync`, `handshake` |
+| `#axi4.qos_mode<...>` | `passthrough`, `fixed`, `remap` |
+| `#axi4.bridge_exclusive<...>` | `block`, `passthrough`, `terminate` |
+| `#axi4.monitor_scope<...>` | `local`, `global` |
+
+## Example
 
 ```mlir
-func.func @example() -> i32 {
-  %0 = axir.constant 42 : i32
-  return %0 : i32
+// Declare clock domain
+%clk = axi4.clock @sys_clk
+
+// Declare a CPU manager
+%cpu = axi4.manager %clk {
+  access = [#axi4.window<base = 0, size = 0x100000000>],
+  data_width = 64 : ui32,
+  outstanding_reads = 8 : ui32,
+  outstanding_writes = 4 : ui32,
+  burst_capability = #axi4.burst_capability<incr = 256>
+}
+
+// Declare SRAM subordinate
+%sram = axi4.subordinate %clk {
+  window = #axi4.window<base = 0x20000000, size = 0x10000>,
+  data_width = 64 : ui32,
+  outstanding = 16 : ui32,
+  burst_capability = #axi4.burst_capability<incr = 256>
+}
+
+// Declare DRAM subordinate
+%dram = axi4.subordinate %clk {
+  window = #axi4.window<base = 0x80000000, size = 0x80000000>,
+  data_width = 64 : ui32,
+  outstanding = 32 : ui32,
+  burst_capability = #axi4.burst_capability<incr = 256>
+}
+
+// Create crossbar
+%bus = axi4.xbar(%clk, managers = [%cpu], subordinates = [%sram, %dram]) {
+  addr_width = 32 : ui32,
+  data_width = 64 : ui32,
+  txn_policy = #axi4.txn_policy<expand>
 }
 ```
 
-### Adding New Operations
+## Verification
 
-1. Define the operation in `include/axir/axirOps.td`:
+### Op-Level Verification
 
-```tablegen
-def axir_MyOp : axir_Op<"my_op", [Pure]> {
-  let summary = "my operation";
-  let arguments = (ins AnyType:$input);
-  let results = (outs AnyType:$output);
-  let assemblyFormat = "$input attr-dict `:` type($input) `->` type($output)";
-}
+Each operation performs local validation:
+
+- Data width compatibility between endpoints and crossbar
+- Burst capability compatibility (INCR, FIXED, WRAP lengths)
+- Exclusive access requirements matching
+- Outstanding transaction capacity checking based on transaction policy
+- Subordinate window disjointness (windows must not overlap within an xbar)
+- Overlap is allowed only when using explicit `axi4.alias` of the same target
+- Window base/size alignment (4KiB)
+- Clock domain matching (all endpoints must be on xbar's clock domain; use `axi4.cdc` to cross domains)
+
+### Network-Level Verification (Pass)
+
+The `verify-axi4-network` pass performs global analysis across bridges:
+
+```bash
+axi4-opt input.mlir -verify-axi4-network
 ```
 
-2. Rebuild to generate the C++ code.
+This pass verifies:
 
-3. Optionally add custom verification or canonicalization in `lib/axir/axirOps.cpp`.
+- **Cross-bridge coverage**: Manager access windows are fully covered by reachable subordinate windows, considering paths through bridges
+- **Global address uniqueness**: No overlap between reachable subordinate windows when translated into each root xbar's address space
+- **Explicit aliasing**: A subordinate reachable at multiple disjoint address ranges must be represented with `axi4.alias`; implicit mirroring is rejected
+- **Alias locality**: An `axi4.alias` must appear on the same xbar as its base subordinate
+- **Multi-path ambiguity**: Detects overlapping address regions that reach the same subordinate via distinct bridge paths
+- **Bridge compatibility**: Ensures bridge burst/exclusive settings are compatible with reachable managers and subordinates
+- **Unreachable subordinate warnings**: Subordinates not accessible by any manager through any path
+- **Unreachable manager warnings**: Managers that cannot reach any subordinate through any path
 
-### Adding New Types
+The `verify-axi4-loop-free` pass checks for cycles in the crossbar/bridge graph:
 
-1. Define the type in `include/axir/axirTypes.td`:
-
-```tablegen
-def axir_MyType : axir_Type<"My", "my"> {
-  let summary = "my custom type";
-  let parameters = (ins "int64_t":$width);
-  let assemblyFormat = "`<` $width `>`";
-}
+```bash
+axi4-opt input.mlir -verify-axi4-loop-free
 ```
 
-2. Rebuild to generate the C++ code.
+This pass verifies:
 
-### Adding Passes
+- **Loop-free topology**: The directed bridge graph (upstream → downstream) must be acyclic
 
-1. Create `include/axir/Passes.td` for pass TableGen definitions
-2. Create `lib/axir/Passes/` directory for pass implementations
-3. Register passes in `axir-opt.cpp`
+## Canonicalization
 
-## License
+The `canonicalize-axi4-adapters` pass normalizes adapter chains into a
+deterministic order to simplify analysis and downstream transforms:
 
-[Add your license here]
+```bash
+axi4-opt input.mlir -canonicalize-axi4-adapters
+```
+
+Canonical adapter order:
+
+- `axi4.resizer` → `axi4.burst_splitter` → `axi4.cdc`
+
+When reordering around a resizer, the pass scales `burst_splitter`
+capabilities to preserve effective burst lengths.
+
+## Op Interface
+
+The `Axi4EndpointOpInterface` provides effective property inference through adapter chains:
+
+- `getEffectiveClock()` - Returns clock domain after CDC adapters
+- `getEffectiveDataWidth()` - Returns data width after width converters
+- `getEffectiveBurstCapabilities()` - Returns burst capabilities after splitters
+- `getEffectiveExclusiveAccess()` - Returns exclusive support after monitors
+- `getEffectiveOutstanding()` - Returns outstanding capacity
