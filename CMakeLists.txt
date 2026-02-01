@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(axir LANGUAGES CXX C)
+project(axi4 LANGUAGES CXX C)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -36,25 +36,25 @@ link_directories(${LLVM_BUILD_LIBRARY_DIR})
 add_definitions(${LLVM_DEFINITIONS})
 
 #-------------------------------------------------------------------------------
-# axir configuration
+# axi4 configuration
 #-------------------------------------------------------------------------------
 
 # Add custom CMake modules
-include(Addaxir)
+include(Addaxi4)
 
 #-------------------------------------------------------------------------------
 # Directory setup
 #-------------------------------------------------------------------------------
 
-add_subdirectory(include/axir)
-add_subdirectory(lib/axir)
-add_subdirectory(tools/axir-opt)
+add_subdirectory(include/axi4)
+add_subdirectory(lib/axi4)
+add_subdirectory(tools/axi4-opt)
 
 #-------------------------------------------------------------------------------
 # Testing (optional, requires lit)
 #-------------------------------------------------------------------------------
 
-option(AXIR_ENABLE_TESTS "Enable building tests" ON)
-if(AXIR_ENABLE_TESTS)
+option(AXI4_ENABLE_TESTS "Enable building tests" ON)
+if(AXI4_ENABLE_TESTS)
   add_subdirectory(test)
 endif()

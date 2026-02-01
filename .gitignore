@@ -1,11 +1,30 @@
 build/
 third_party/llvm-project/build/
+
+# Object files
 *.o
 *.a
 *.so
 *.dylib
+
+# Python
 *.pyc
 __pycache__/
+
+# macOS
 .DS_Store
-compile_commands.json
+
+# IDE/Editor
 .cache/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build artifacts
+compile_commands.json
+*.inc.d
+
+# Claude
+.claude/

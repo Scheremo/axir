@@ -16,7 +16,7 @@ from lit.llvm.subst import FindTool
 # Configuration file for the 'lit' test runner.
 
 # name: The name of this test suite.
-config.name = 'AXIR'
+config.name = 'AXI4'
 
 config.test_format = lit.formats.ShTest(not llvm_config.use_lit_shell)
 
@@ -27,10 +27,9 @@ config.suffixes = ['.mlir']
 config.test_source_root = os.path.dirname(__file__)
 
 # test_exec_root: The root path where tests should be run.
-config.test_exec_root = os.path.join(config.axir_obj_dir, 'test')
+config.test_exec_root = os.path.join(config.axi4_obj_dir, 'test')
 
 config.substitutions.append(('%PATH%', config.environment['PATH']))
-config.substitutions.append(('%shlibext', config.llvm_shlib_ext))
 
 llvm_config.with_system_environment(['HOME', 'INCLUDE', 'LIB', 'TMP', 'TEMP'])
 
@@ -39,17 +38,11 @@ llvm_config.use_default_substitutions()
 # excludes: A list of directories to exclude from the testsuite.
 config.excludes = ['CMakeLists.txt', 'README.txt', 'LICENSE.txt']
 
-# test_source_root: The root path where tests are located.
-config.test_source_root = os.path.dirname(__file__)
-
-# test_exec_root: The root path where tests should be run.
-config.test_exec_root = os.path.join(config.axir_obj_dir, 'test')
-
 # Tweak the PATH to include the tools dir.
 llvm_config.with_environment('PATH', config.llvm_tools_dir, append_path=True)
-llvm_config.with_environment('PATH', config.axir_tools_dir, append_path=True)
+llvm_config.with_environment('PATH', config.axi4_tools_dir, append_path=True)
 
-tool_dirs = [config.axir_tools_dir, config.llvm_tools_dir]
-tools = ['axir-opt']
+tool_dirs = [config.axi4_tools_dir, config.llvm_tools_dir]
+tools = ['axi4-opt']
 
 llvm_config.add_tool_substitutions(tools, tool_dirs)
