@@ -21,18 +21,30 @@ axi4/
 │   ├── axi4Attrs.h                # Attributes C++ header
 │   ├── axi4Interfaces.td          # Op interfaces definition
 │   ├── axi4Interfaces.h           # Op interfaces C++ header
+│   ├── axi4Passes.td              # Pass definitions
+│   ├── axi4Passes.h               # Pass C++ header
+│   ├── axi4Analysis.h             # Analysis utilities header
 │   └── INTENT.md                  # Dialect specification
 ├── lib/axi4/
 │   ├── CMakeLists.txt             # Library build rules
 │   ├── axi4Dialect.cpp            # Dialect initialization
 │   ├── axi4Ops.cpp                # Operations implementation
-│   └── axi4Interfaces.cpp         # Interfaces implementation
+│   ├── axi4Interfaces.cpp         # Interfaces implementation
+│   ├── axi4Passes.cpp             # Pass implementations
+│   └── axi4Analysis.cpp           # Analysis utilities
 ├── tools/axi4-opt/
 │   ├── CMakeLists.txt             # Tool build rules
 │   └── axi4-opt.cpp               # Optimizer driver
+├── examples/
+│   └── chimera.mlir               # Example SoC interconnect
 └── test/axi4/
     ├── basic.mlir                 # Positive tests
-    └── basic-error.mlir           # Error/diagnostic tests
+    ├── basic-error.mlir           # Op-level error tests
+    ├── network-verify.mlir        # Network verification tests
+    ├── loop-free.mlir             # Loop detection tests
+    ├── alias.mlir                 # Alias operation tests
+    ├── canonicalize-adapters.mlir # Adapter canonicalization tests
+    └── mesh-noc.mlir              # Mesh NoC topology example
 ```
 
 ## Prerequisites
