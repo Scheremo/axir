@@ -58,7 +58,7 @@ axi4/
 ### 1. Clone with submodules
 
 ```bash
-git clone --recursive https://github.com/user/axi4.git
+git clone --recursive https://github.com/Scheremo/axir.git
 cd axi4
 ```
 
