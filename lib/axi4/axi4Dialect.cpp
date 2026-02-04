@@ -31,7 +31,6 @@ using namespace axi4;
 #define GET_TYPEDEF_CLASSES
 #include "axi4/axi4Types.cpp.inc"
 
-
 //===----------------------------------------------------------------------===//
 // Attribute storage and implementations
 //===----------------------------------------------------------------------===//

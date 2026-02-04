@@ -102,6 +102,11 @@ ninja all
 ninja check-axi4
 ```
 
+### 5. Formatting
+
+Formatting follows the upstream LLVM/MLIR `clang-format` style. CI enforces
+`clang-format-17` with the `.clang-format` file at the repo root.
+
 ## Overview
 
 The axi4 dialect models AXI4 interconnects declaratively:

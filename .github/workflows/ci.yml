@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    name: build-test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    env:
+      CCACHE_DIR: ~/.ccache
+      CCACHE_MAXSIZE: 2G
+      CCACHE_BASEDIR: ${{ github.workspace }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build cmake ccache clang-format-17 ripgrep
+
+      - name: Install dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install ninja cmake ccache llvm@17 ripgrep
+          echo "$(brew --prefix llvm@17)/bin" >> $GITHUB_PATH
+          ln -sf "$(brew --prefix llvm@17)/bin/clang-format" /usr/local/bin/clang-format-17 || true
+
+      - name: Format Check
+        run: |
+          CLANG_FORMAT=clang-format-17 \
+          FORMAT_CHECK_BASE=origin/${{ github.base_ref }} \
+          scripts/format-check.sh
+
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ github.job }}-${{ matrix.os }}
+
+      - name: Configure LLVM/MLIR
+        run: |
+          cmake -S third_party/llvm-project/llvm -B third_party/llvm-project/build -G Ninja \
+            -DLLVM_ENABLE_PROJECTS=mlir \
+            -DLLVM_TARGETS_TO_BUILD="Native" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DLLVM_ENABLE_ASSERTIONS=ON \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+
+      - name: Build LLVM/MLIR
+        run: ninja -C third_party/llvm-project/build
+
+      - name: Configure axi4
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DMLIR_DIR=${{ github.workspace }}/third_party/llvm-project/build/lib/cmake/mlir \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+
+      - name: Build + Test
+        run: ninja -C build check-axi4

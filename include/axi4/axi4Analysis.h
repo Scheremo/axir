@@ -47,12 +47,14 @@ std::string checkBurstCompatibility(axi4::BurstCapabilityAttr mgrBurst,
 /// Returns nullptr if the chain doesn't lead to a ManagerOp.
 axi4::ManagerOp findBaseManagerOp(mlir::Value endpoint);
 
-/// Walk through adapter chain to find the base SubordinateOp or ErrorSubordinateOp.
-/// Returns the window attribute if found, nullopt otherwise.
+/// Walk through adapter chain to find the base SubordinateOp or
+/// ErrorSubordinateOp. Returns the window attribute if found, nullopt
+/// otherwise.
 std::optional<axi4::WindowAttr> findBaseSubordinateWindow(mlir::Value endpoint);
 
 /// Get the access windows from a manager (possibly through adapter chain).
-llvm::SmallVector<axi4::WindowAttr> getManagerAccessWindows(mlir::Value endpoint);
+llvm::SmallVector<axi4::WindowAttr>
+getManagerAccessWindows(mlir::Value endpoint);
 
 /// Returns the base subordinate for an alias chain (or the op itself).
 mlir::Operation *getAliasBase(mlir::Operation *op);
