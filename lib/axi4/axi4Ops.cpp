@@ -21,9 +21,7 @@
 using namespace mlir;
 using namespace axi4;
 
-namespace axi4 {
-
-}; // namespace axi4
+namespace axi4 {}; // namespace axi4
 
 //===----------------------------------------------------------------------===//
 // ManagerOp
@@ -223,15 +221,16 @@ LogicalResult XbarOp::verify() {
   for (auto mgr : getManagers()) {
     auto mgrClock = inferEffectiveClock(mgr);
     if (failed(mgrClock)) {
-      return mlir::emitError(mgr.getLoc()) << "Failed to determine clock domain!";
+      return mlir::emitError(mgr.getLoc())
+             << "Failed to determine clock domain!";
     }
 
     if (mgrClock.value() != xbarClock) {
       auto diag = emitOpError() << "manager clock domain mismatch";
       diag.attachNote(mgr.getLoc())
           << "manager has different effective clock domain";
-      diag.attachNote(getLoc())
-          << "xbar clock domain defined here; use axi4.cdc to cross clock domains";
+      diag.attachNote(getLoc()) << "xbar clock domain defined here; use "
+                                   "axi4.cdc to cross clock domains";
       return failure();
     }
   }
@@ -240,15 +239,16 @@ LogicalResult XbarOp::verify() {
   for (auto sub : getSubordinates()) {
     auto subClock = inferEffectiveClock(sub);
     if (failed(subClock)) {
-      return mlir::emitError(sub.getLoc()) << "Failed to determine clock domain!";
+      return mlir::emitError(sub.getLoc())
+             << "Failed to determine clock domain!";
     }
 
     if (subClock.value() != xbarClock) {
       auto diag = emitOpError() << "subordinate clock domain mismatch";
       diag.attachNote(sub.getLoc())
           << "subordinate has different effective clock domain";
-      diag.attachNote(getLoc())
-          << "xbar clock domain defined here; use axi4.cdc to cross clock domains";
+      diag.attachNote(getLoc()) << "xbar clock domain defined here; use "
+                                   "axi4.cdc to cross clock domains";
       return failure();
     }
   }
@@ -272,15 +272,18 @@ LogicalResult XbarOp::verify() {
   });
 
   // Check adjacent pairs for overlap - O(S) after sorting
-  // If windows are sorted by base, overlap can only occur between adjacent pairs
+  // If windows are sorted by base, overlap can only occur between adjacent
+  // pairs
   for (size_t i = 0; i + 1 < subordinateWindows.size(); ++i) {
     const auto &curr = subordinateWindows[i];
     const auto &next = subordinateWindows[i + 1];
     // Overlap if curr.end > next.base (since they're sorted by base)
     uint64_t currEnd = curr.second.getBase() + curr.second.getSize();
     if (currEnd > next.second.getBase()) {
-      Operation *currBase = getAliasBase(subordinates[curr.first].getDefiningOp());
-      Operation *nextBase = getAliasBase(subordinates[next.first].getDefiningOp());
+      Operation *currBase =
+          getAliasBase(subordinates[curr.first].getDefiningOp());
+      Operation *nextBase =
+          getAliasBase(subordinates[next.first].getDefiningOp());
       if (currBase == nextBase)
         continue;
       auto diag = emitOpError() << "subordinate windows overlap";
@@ -299,11 +302,12 @@ LogicalResult XbarOp::verify() {
   }
 
   // Note: Coverage verification and unreachable subordinate warnings are now
-  // handled by the verify-axi4-network pass, which can consider cross-bridge paths.
+  // handled by the verify-axi4-network pass, which can consider cross-bridge
+  // paths.
 
-  // Build mapping: subordinate index -> list of manager indices that can access it
-  // A manager can access a subordinate if any of the manager's access windows
-  // overlap with the subordinate's window.
+  // Build mapping: subordinate index -> list of manager indices that can access
+  // it A manager can access a subordinate if any of the manager's access
+  // windows overlap with the subordinate's window.
   llvm::DenseMap<size_t, llvm::SmallVector<size_t>> subordinateToManagers;
 
   for (size_t subIdx = 0; subIdx < subordinates.size(); ++subIdx) {
@@ -346,10 +350,11 @@ LogicalResult XbarOp::verify() {
       std::string incompatibility =
           checkBurstCompatibility(*mgrBurst, *subBurst);
       if (!incompatibility.empty()) {
-        auto diag = emitOpError() << "burst capability mismatch: "
-                                  << incompatibility;
+        auto diag = emitOpError()
+                    << "burst capability mismatch: " << incompatibility;
         diag.attachNote(managers[mgrIdx].getLoc()) << "manager defined here";
-        diag.attachNote(subordinates[subIdx].getLoc()) << "subordinate defined here";
+        diag.attachNote(subordinates[subIdx].getLoc())
+            << "subordinate defined here";
         return failure();
       }
     }
@@ -432,11 +437,13 @@ LogicalResult XbarOp::verify() {
 
     if (*subOutstanding < requiredOutstanding) {
       if (capacityCheckIsError) {
-        auto diag = emitOpError()
-                    << "insufficient subordinate outstanding capacity: subordinate has "
-                    << *subOutstanding << " but requires " << requiredOutstanding
-                    << " (" << policyDesc << ")";
-        diag.attachNote(subordinates[subIdx].getLoc()) << "subordinate defined here";
+        auto diag =
+            emitOpError()
+            << "insufficient subordinate outstanding capacity: subordinate has "
+            << *subOutstanding << " but requires " << requiredOutstanding
+            << " (" << policyDesc << ")";
+        diag.attachNote(subordinates[subIdx].getLoc())
+            << "subordinate defined here";
         return failure();
       } else {
         // Emit warning with explicit location
@@ -696,9 +703,7 @@ uint32_t AliasOp::getEffectiveOutstanding() {
   return axi4::inferEffectiveOutstanding(getInput()).value();
 }
 
-LogicalResult AliasOp::verify() {
-  return success();
-}
+LogicalResult AliasOp::verify() { return success(); }
 
 //===----------------------------------------------------------------------===//
 // BridgeOp

@@ -57,9 +57,7 @@ struct TranslatedRangeKey {
 };
 
 struct TranslatedRangeKeyInfo {
-  static inline TranslatedRangeKey getEmptyKey() {
-    return {nullptr, 0, 0};
-  }
+  static inline TranslatedRangeKey getEmptyKey() { return {nullptr, 0, 0}; }
   static inline TranslatedRangeKey getTombstoneKey() {
     return {reinterpret_cast<Operation *>(-1), 0, 0};
   }
@@ -82,9 +80,7 @@ struct VisitKey {
 };
 
 struct VisitKeyInfo {
-  static inline VisitKey getEmptyKey() {
-    return {nullptr, 0, 0, 0, 0};
-  }
+  static inline VisitKey getEmptyKey() { return {nullptr, 0, 0, 0, 0}; }
   static inline VisitKey getTombstoneKey() {
     return {reinterpret_cast<Operation *>(-1), 0, 0, 0, 0};
   }
@@ -159,9 +155,8 @@ private:
   };
 
   template <typename SubFn, typename BridgeFn>
-  void walkReachable(XbarOp startXbar,
-                     llvm::ArrayRef<WindowAttr> accessWindows, SubFn onSub,
-                     BridgeFn onBridge, bool trackPathHash,
+  void walkReachable(XbarOp startXbar, llvm::ArrayRef<WindowAttr> accessWindows,
+                     SubFn onSub, BridgeFn onBridge, bool trackPathHash,
                      bool trackBridgeStack);
 
   /// Find uncovered region given sorted coverage windows.
@@ -219,8 +214,7 @@ private:
 };
 
 class CanonicalizeAxi4AdaptersPass
-    : public impl::CanonicalizeAxi4AdaptersBase<
-          CanonicalizeAxi4AdaptersPass> {
+    : public impl::CanonicalizeAxi4AdaptersBase<CanonicalizeAxi4AdaptersPass> {
 public:
   void runOnOperation() override;
 };
@@ -310,27 +304,28 @@ void VerifyAxi4NetworkPass::walkReachable(
 
       auto bridgeWindow = bridge.getUpstreamWindow();
       AddressRange bridgeRange{bridgeWindow.getBase(),
-                               bridgeWindow.getBase() +
-                                   bridgeWindow.getSize()};
+                               bridgeWindow.getBase() + bridgeWindow.getSize()};
 
       auto overlap = intersectRanges(state.allowed, bridgeRange);
       if (!overlap)
         continue;
 
-      uint64_t downstreamBase = overlap->base - bridgeWindow.getBase() +
-                                bridge.getDownstreamBase();
-      uint64_t downstreamEnd = overlap->end - bridgeWindow.getBase() +
-                               bridge.getDownstreamBase();
+      uint64_t downstreamBase =
+          overlap->base - bridgeWindow.getBase() + bridge.getDownstreamBase();
+      uint64_t downstreamEnd =
+          overlap->end - bridgeWindow.getBase() + bridge.getDownstreamBase();
 
-      int64_t newOffset = state.offset +
-                          (int64_t)bridgeWindow.getBase() -
+      int64_t newOffset = state.offset + (int64_t)bridgeWindow.getBase() -
                           (int64_t)bridge.getDownstreamBase();
       uint64_t newHash =
           llvm::hash_combine(state.pathHash, bridge.getOperation());
 
-      ReachState next{downstream, newOffset,
+      ReachState next{downstream,
+                      newOffset,
                       AddressRange{downstreamBase, downstreamEnd},
-                      newHash, state.bridges, bridge.getOperation()};
+                      newHash,
+                      state.bridges,
+                      bridge.getOperation()};
       if (trackBridgeStack)
         next.bridges.push_back(bridge);
 
@@ -347,7 +342,7 @@ void VerifyAxi4NetworkPass::walkReachable(
 
 llvm::SmallVector<std::pair<Value, int64_t>>
 VerifyAxi4NetworkPass::findReachableSubordinates(Value manager,
-                                                  XbarOp startXbar) {
+                                                 XbarOp startXbar) {
   llvm::SmallVector<std::pair<Value, int64_t>> reachable;
 
   // Get manager's access windows
@@ -362,7 +357,9 @@ VerifyAxi4NetworkPass::findReachableSubordinates(Value manager,
         reachedSubordinates.insert(sub);
         reachableManagers.insert(manager);
       },
-      [&](const ReachState &, BridgeOp, AddressRange, ReachState &) { return true; },
+      [&](const ReachState &, BridgeOp, AddressRange, ReachState &) {
+        return true;
+      },
       /*trackPathHash=*/false, /*trackBridgeStack=*/false);
 
   return reachable;
@@ -372,7 +369,8 @@ std::optional<std::pair<uint64_t, uint64_t>>
 VerifyAxi4NetworkPass::findUncoveredRegion(
     WindowAttr window, llvm::ArrayRef<TranslatedWindow> sortedCoverage) {
   if (sortedCoverage.empty())
-    return std::make_pair(window.getBase(), window.getBase() + window.getSize());
+    return std::make_pair(window.getBase(),
+                          window.getBase() + window.getSize());
 
   uint64_t windowBase = window.getBase();
   uint64_t windowEnd = windowBase + window.getSize();
@@ -467,10 +465,10 @@ LogicalResult VerifyAxi4NetworkPass::verifyGlobalAddressUniqueness() {
   for (auto xbar : allXbars) {
     auto windows = collectTranslatedSubordinateWindows(xbar);
 
-    llvm::sort(windows, [](const TranslatedWindow &a,
-                           const TranslatedWindow &b) {
-      return a.base < b.base;
-    });
+    llvm::sort(windows,
+               [](const TranslatedWindow &a, const TranslatedWindow &b) {
+                 return a.base < b.base;
+               });
 
     for (size_t i = 0; i + 1 < windows.size(); ++i) {
       const auto &curr = windows[i];
@@ -503,8 +501,7 @@ LogicalResult VerifyAxi4NetworkPass::verifyPathUniqueness() {
       if (accessWindows.empty())
         continue;
 
-      llvm::DenseMap<Operation *, llvm::SmallVector<RangeWithPath>>
-          rangesBySub;
+      llvm::DenseMap<Operation *, llvm::SmallVector<RangeWithPath>> rangesBySub;
       walkReachable(
           xbar, accessWindows,
           [&](const ReachState &state, Value sub, AddressRange overlap) {
@@ -597,8 +594,8 @@ LogicalResult VerifyAxi4NetworkPass::verifyExplicitAlias() {
                         << "subordinate reachable at multiple address ranges "
                            "without explicit alias";
             diag.attachNote(base->getLoc())
-                << "first range: [0x" << Twine::utohexstr(merged.base)
-                << ", 0x" << Twine::utohexstr(merged.end) << ")";
+                << "first range: [0x" << Twine::utohexstr(merged.base) << ", 0x"
+                << Twine::utohexstr(merged.end) << ")";
             diag.attachNote(base->getLoc())
                 << "second range: [0x" << Twine::utohexstr(ranges[i].base)
                 << ", 0x" << Twine::utohexstr(ranges[i].end) << ")";
@@ -670,9 +667,10 @@ LogicalResult VerifyAxi4NetworkPass::verifyBridgeCompatibility() {
               std::string incompat =
                   checkBurstCompatibility(*bridgeBurst, *subBurst);
               if (!incompat.empty()) {
-                auto diag = bridge.emitOpError()
-                            << "bridge burst capability mismatch with subordinate: "
-                            << incompat;
+                auto diag =
+                    bridge.emitOpError()
+                    << "bridge burst capability mismatch with subordinate: "
+                    << incompat;
                 diag.attachNote(sub.getLoc())
                     << "subordinate reachable through this bridge";
                 hasFailure = true;
@@ -684,9 +682,8 @@ LogicalResult VerifyAxi4NetworkPass::verifyBridgeCompatibility() {
               ReachState &) {
             if (succeeded(mgrExclusive) && *mgrExclusive) {
               if (bridge.getExclusive() != BridgeExclusive::Passthrough) {
-                auto diag =
-                    bridge.emitOpError()
-                    << "bridge does not allow exclusive transactions";
+                auto diag = bridge.emitOpError()
+                            << "bridge does not allow exclusive transactions";
                 diag.attachNote(manager.getLoc())
                     << "manager issues exclusive transactions";
                 hasFailure = true;
@@ -694,8 +691,8 @@ LogicalResult VerifyAxi4NetworkPass::verifyBridgeCompatibility() {
             }
 
             if (succeeded(mgrBurst) && bridge.getBurstCapability()) {
-              std::string incompat =
-                  checkBurstCompatibility(*mgrBurst, *bridge.getBurstCapability());
+              std::string incompat = checkBurstCompatibility(
+                  *mgrBurst, *bridge.getBurstCapability());
               if (!incompat.empty()) {
                 auto diag = bridge.emitOpError()
                             << "bridge burst capability mismatch with manager: "
@@ -877,8 +874,7 @@ VerifyAxi4NetworkPass::collectTranslatedSubordinateWindows(XbarOp rootXbar) {
       uint64_t downstreamEnd =
           overlap->end - bridgeWindow.getBase() + bridge.getDownstreamBase();
 
-      int64_t newOffset = state.offset +
-                          (int64_t)bridgeWindow.getBase() -
+      int64_t newOffset = state.offset + (int64_t)bridgeWindow.getBase() -
                           (int64_t)bridge.getDownstreamBase();
 
       worklist.push(
@@ -906,7 +902,8 @@ void VerifyAxi4LoopFreePass::buildGraph(ModuleOp module) {
 
   module.walk([&](XbarOp xbar) { allXbars.push_back(xbar); });
   module.walk([&](BridgeOp bridge) {
-    auto upstream = llvm::dyn_cast<XbarOp>(bridge.getUpstream().getDefiningOp());
+    auto upstream =
+        llvm::dyn_cast<XbarOp>(bridge.getUpstream().getDefiningOp());
     auto downstream =
         llvm::dyn_cast<XbarOp>(bridge.getDownstream().getDefiningOp());
     if (!upstream || !downstream)
@@ -915,8 +912,7 @@ void VerifyAxi4LoopFreePass::buildGraph(ModuleOp module) {
   });
 }
 
-void VerifyAxi4LoopFreePass::reportCycle(XbarOp from, XbarOp to,
-                                         BridgeOp via) {
+void VerifyAxi4LoopFreePass::reportCycle(XbarOp from, XbarOp to, BridgeOp via) {
   auto diag = via.emitOpError() << "creates a loop in AXI4 network";
 
   llvm::SmallVector<XbarOp> cycle;
@@ -1015,17 +1011,16 @@ struct CollapseResizerChain final : OpRewritePattern<ResizerOp> {
       return failure();
 
     rewriter.setInsertionPoint(resizer);
-    auto merged = ResizerOp::create(
-        rewriter, resizer.getLoc(), resizer.getResult().getType(),
-        inner.getInput(), resizer.getTargetWidth());
+    auto merged = ResizerOp::create(rewriter, resizer.getLoc(),
+                                    resizer.getResult().getType(),
+                                    inner.getInput(), resizer.getTargetWidth());
     rewriter.replaceOp(resizer, merged.getResult());
     rewriter.eraseOp(inner);
     return success();
   }
 };
 
-struct CollapseBurstSplitterChain final
-    : OpRewritePattern<BurstSplitterOp> {
+struct CollapseBurstSplitterChain final : OpRewritePattern<BurstSplitterOp> {
   using OpRewritePattern::OpRewritePattern;
 
   LogicalResult matchAndRewrite(BurstSplitterOp splitter,
@@ -1068,8 +1063,7 @@ struct MoveResizerBeforeBurstSplitter final : OpRewritePattern<ResizerOp> {
 
   LogicalResult matchAndRewrite(ResizerOp resizer,
                                 PatternRewriter &rewriter) const override {
-    auto splitter =
-        resizer.getInput().getDefiningOp<BurstSplitterOp>();
+    auto splitter = resizer.getInput().getDefiningOp<BurstSplitterOp>();
     if (!splitter || !splitter->hasOneUse())
       return failure();
 
@@ -1084,9 +1078,9 @@ struct MoveResizerBeforeBurstSplitter final : OpRewritePattern<ResizerOp> {
     auto newResizer = ResizerOp::create(
         rewriter, resizer.getLoc(), resizer.getResult().getType(),
         splitter.getInput(), resizer.getTargetWidth());
-    auto newSplitter = BurstSplitterOp::create(
-        rewriter, resizer.getLoc(), resizer.getResult().getType(),
-        newResizer.getResult(), *scaled);
+    auto newSplitter = BurstSplitterOp::create(rewriter, resizer.getLoc(),
+                                               resizer.getResult().getType(),
+                                               newResizer.getResult(), *scaled);
 
     rewriter.replaceOp(resizer, newSplitter.getResult());
     rewriter.eraseOp(splitter);
@@ -1107,10 +1101,10 @@ struct MoveResizerBeforeCdc final : OpRewritePattern<ResizerOp> {
     auto newResizer = ResizerOp::create(
         rewriter, resizer.getLoc(), resizer.getResult().getType(),
         cdc.getInput(), resizer.getTargetWidth());
-    auto newCdc = CdcOp::create(
-        rewriter, resizer.getLoc(), resizer.getResult().getType(),
-        newResizer.getResult(), cdc.getTargetClock(), cdc.getDepth(),
-        cdc.getModeAttr());
+    auto newCdc =
+        CdcOp::create(rewriter, resizer.getLoc(), resizer.getResult().getType(),
+                      newResizer.getResult(), cdc.getTargetClock(),
+                      cdc.getDepth(), cdc.getModeAttr());
 
     rewriter.replaceOp(resizer, newCdc.getResult());
     rewriter.eraseOp(cdc);
@@ -1118,8 +1112,7 @@ struct MoveResizerBeforeCdc final : OpRewritePattern<ResizerOp> {
   }
 };
 
-struct MoveBurstSplitterBeforeCdc final
-    : OpRewritePattern<BurstSplitterOp> {
+struct MoveBurstSplitterBeforeCdc final : OpRewritePattern<BurstSplitterOp> {
   using OpRewritePattern::OpRewritePattern;
 
   LogicalResult matchAndRewrite(BurstSplitterOp splitter,
@@ -1132,10 +1125,10 @@ struct MoveBurstSplitterBeforeCdc final
     auto newSplitter = BurstSplitterOp::create(
         rewriter, splitter.getLoc(), splitter.getResult().getType(),
         cdc.getInput(), splitter.getBurstCapability());
-    auto newCdc = CdcOp::create(
-        rewriter, splitter.getLoc(), splitter.getResult().getType(),
-        newSplitter.getResult(), cdc.getTargetClock(), cdc.getDepth(),
-        cdc.getModeAttr());
+    auto newCdc =
+        CdcOp::create(rewriter, splitter.getLoc(),
+                      splitter.getResult().getType(), newSplitter.getResult(),
+                      cdc.getTargetClock(), cdc.getDepth(), cdc.getModeAttr());
 
     rewriter.replaceOp(splitter, newCdc.getResult());
     rewriter.eraseOp(cdc);
@@ -1149,8 +1142,7 @@ void CanonicalizeAxi4AdaptersPass::runOnOperation() {
   RewritePatternSet patterns(&getContext());
   patterns.add<CollapseResizerChain, CollapseBurstSplitterChain,
                CollapseCdcChain, MoveResizerBeforeBurstSplitter,
-               MoveResizerBeforeCdc, MoveBurstSplitterBeforeCdc>(
-      &getContext());
+               MoveResizerBeforeCdc, MoveBurstSplitterBeforeCdc>(&getContext());
 
   if (failed(applyPatternsGreedily(getOperation(), std::move(patterns)))) {
     signalPassFailure();

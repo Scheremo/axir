@@ -102,8 +102,8 @@ scaleBurstCapability(axi4::BurstCapabilityAttr cap, uint32_t inputWidth,
   }
 
   bool downsizing = targetWidth < inputWidth;
-  uint32_t factor = downsizing ? (inputWidth / targetWidth)
-                               : (targetWidth / inputWidth);
+  uint32_t factor =
+      downsizing ? (inputWidth / targetWidth) : (targetWidth / inputWidth);
   if (factor == 0) {
     if (errorMessage)
       *errorMessage = "invalid resize factor";
@@ -166,7 +166,8 @@ std::string checkBurstCompatibility(BurstCapabilityAttr mgrBurst,
   if (auto mgrIncr = mgrBurst.getIncrMaxLen()) {
     auto subIncr = subBurst.getIncrMaxLen();
     if (!subIncr) {
-      return "manager requires INCR bursts but subordinate does not support INCR";
+      return "manager requires INCR bursts but subordinate does not support "
+             "INCR";
     }
     if (*mgrIncr > *subIncr) {
       return "manager INCR burst length (" + std::to_string(*mgrIncr) +
@@ -177,11 +178,13 @@ std::string checkBurstCompatibility(BurstCapabilityAttr mgrBurst,
   if (auto mgrFixed = mgrBurst.getFixedMaxLen()) {
     auto subFixed = subBurst.getFixedMaxLen();
     if (!subFixed) {
-      return "manager requires FIXED bursts but subordinate does not support FIXED";
+      return "manager requires FIXED bursts but subordinate does not support "
+             "FIXED";
     }
     if (*mgrFixed > *subFixed) {
       return "manager FIXED burst length (" + std::to_string(*mgrFixed) +
-             ") exceeds subordinate maximum (" + std::to_string(*subFixed) + ")";
+             ") exceeds subordinate maximum (" + std::to_string(*subFixed) +
+             ")";
     }
   }
 
@@ -189,7 +192,8 @@ std::string checkBurstCompatibility(BurstCapabilityAttr mgrBurst,
   if (!mgrWrap.empty()) {
     auto subWrap = subBurst.getWrapLengths();
     if (subWrap.empty()) {
-      return "manager requires WRAP bursts but subordinate does not support WRAP";
+      return "manager requires WRAP bursts but subordinate does not support "
+             "WRAP";
     }
 
     llvm::DenseSet<int32_t> subWrapSet(subWrap.begin(), subWrap.end());
