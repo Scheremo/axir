@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+// Copyright (c) 2026 AXIR Contributors
+
 //===- axi4Analysis.h - axi4 analysis helpers -------------------*- C++ -*-===//
 //
 // Shared helper utilities for AXI4 verification and analysis.

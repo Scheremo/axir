@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+// Copyright (c) 2026 AXIR Contributors
+
 //===- axi4Passes.cpp - axi4 pass implementations ---------------*- C++ -*-===//
 //
 // This file implements the passes for the axi4 dialect.

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+// Copyright (c) 2026 AXIR Contributors
+
 //===- axi4Types.td - axi4 type definitions ----------------*- tablegen -*-===//
 //
 // Defines the types of the axi4 dialect.

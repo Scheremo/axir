@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+// Copyright (c) 2026 AXIR Contributors
+
 //===- axi4Passes.td - axi4 pass definitions ---------------*- tablegen -*-===//
 //
 // Defines the passes for the axi4 dialect.
