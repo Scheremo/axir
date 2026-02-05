@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+// Copyright (c) 2026 AXIR Contributors
+
 //===- axi4Attrs.td - axi4 attribute definitions -----------*- tablegen -*-===//
 //
 // Defines the attributes of the axi4 dialect.

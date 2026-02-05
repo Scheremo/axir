@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+// Copyright (c) 2026 AXIR Contributors
+
 //===- axi4Ops.td - axi4 operation definitions -------------*- tablegen -*-===//
 //
 // Defines the operations of the axi4 dialect.

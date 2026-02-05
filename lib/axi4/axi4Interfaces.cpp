@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+// Copyright (c) 2026 AXIR Contributors
+
 #include "mlir/IR/OpDefinition.h"
 #include "mlir/Support/InterfaceSupport.h"
 

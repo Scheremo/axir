@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+// Copyright (c) 2026 AXIR Contributors
+
 //===- axi4Attrs.h - axi4 attribute declarations ----------------*- C++ -*-===//
 //
 // This file declares the axi4 dialect attributes.

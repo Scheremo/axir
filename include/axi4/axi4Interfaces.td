@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+// Copyright (c) 2026 AXIR Contributors
+
 //===- axi4Dialect.td - axi4 dialect definition ------------*- tablegen -*-===//
 //
 // Defines the axi4 dialect for AXI4 interconnect modeling.

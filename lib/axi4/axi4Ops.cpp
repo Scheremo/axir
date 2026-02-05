@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+// Copyright (c) 2026 AXIR Contributors
+
 //===- axi4Ops.cpp - axi4 operations implementation -------------*- C++ -*-===//
 //
 // This file implements the axi4 dialect operations.
