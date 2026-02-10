@@ -10,9 +10,25 @@ module @manager_invalid_data_width {
   %mgr = axi4.manager %clk {
     access = [#axi4.window<base = 0x10000000, size = 0x100000000>],
     data_width = 31 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32,
     burst_capability = #axi4.burst_capability<incr = 256>
+  }
+}
+
+// -----
+
+module @manager_zero_external_id_width {
+  %clk = axi4.clock @test_clk
+  // expected-error @+1 {{'axi4.manager' op external_id_width must be >= 1}}
+  %mgr = axi4.manager %clk {
+    access = [#axi4.window<base = 0, size = 0x1000>],
+    data_width = 64 : ui32,
+    external_id_width = 0 : ui32,
+    outstanding_reads = 4 : ui32,
+    outstanding_writes = 4 : ui32,
+    burst_capability = #axi4.burst_capability<incr = 16>
   }
 }
 
@@ -24,6 +40,7 @@ module @manager_empty_access {
   %mgr = axi4.manager %clk {
     access = [],
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32,
     burst_capability = #axi4.burst_capability<incr = 256>
@@ -38,6 +55,7 @@ module @manager_no_read_or_write {
   %mgr = axi4.manager %clk {
     access = [#axi4.window<base = 0, size = 0x1000>],
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 0 : ui32,
     outstanding_writes = 0 : ui32,
     burst_capability = #axi4.burst_capability<incr = 16>,
@@ -54,6 +72,7 @@ module @manager_access_window_misaligned_base {
     // expected-error @+1 {{window base must be 4KiB aligned}}
     access = [#axi4.window<base = 0x100, size = 0x1000>],
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 1 : ui32,
     outstanding_writes = 1 : ui32,
     burst_capability = #axi4.burst_capability<incr = 16>
@@ -68,6 +87,7 @@ module @manager_outstanding_reads_zero_when_read {
   %mgr = axi4.manager %clk {
     access = [#axi4.window<base = 0, size = 0x1000>],
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 0 : ui32,
     outstanding_writes = 4 : ui32,
     burst_capability = #axi4.burst_capability<incr = 16>
@@ -86,8 +106,23 @@ module @subordinate_invalid_data_width {
   %sub = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 256>,
     data_width = 17 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0x10000000, size = 0x100000000>
+  }
+}
+
+// -----
+
+module @subordinate_zero_external_id_width {
+  %clk = axi4.clock @test_clk
+  // expected-error @+1 {{'axi4.subordinate' op external_id_width must be >= 1}}
+  %sub = axi4.subordinate %clk {
+    burst_capability = #axi4.burst_capability<incr = 16>,
+    data_width = 64 : ui32,
+    external_id_width = 0 : ui32,
+    outstanding = 4 : ui32,
+    window = #axi4.window<base = 0, size = 0x1000>
   }
 }
 
@@ -99,6 +134,7 @@ module @subordinate_no_read_or_write {
   %sub = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 256>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0, size = 0x1000>,
     read = false,
@@ -114,6 +150,7 @@ module @subordinate_zero_outstanding {
   %sub = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 256>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 0 : ui32,
     window = #axi4.window<base = 0, size = 0x1000>
   }
@@ -126,6 +163,7 @@ module @subordinate_window_misaligned_size {
   %sub = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 1 : ui32,
     // expected-error @+1 {{window size must be 4KiB aligned}}
     window = #axi4.window<base = 0x0, size = 0x1200>
@@ -146,6 +184,7 @@ module @xbar_manager_data_width_mismatch {
     access = [#axi4.window<base = 0x12340000, size = 0x100000000>],
     burst_capability = #axi4.burst_capability<incr = 256>,
     data_width = 32 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -153,6 +192,7 @@ module @xbar_manager_data_width_mismatch {
   %sub = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 256>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0x12340000, size = 0x100000000>
   }
@@ -174,6 +214,7 @@ module @xbar_subordinate_data_width_mismatch {
     access = [#axi4.window<base = 0x12340000, size = 0x100000000>],
     burst_capability = #axi4.burst_capability<incr = 256>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -182,6 +223,7 @@ module @xbar_subordinate_data_width_mismatch {
   %sub_wrong = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 256>,
     data_width = 32 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0x12340000, size = 0x100000000>
   }
@@ -204,6 +246,7 @@ module @xbar_multiple_managers_one_mismatch {
     access = [#axi4.window<base = 0, size = 0x1000>],
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -213,6 +256,7 @@ module @xbar_multiple_managers_one_mismatch {
     access = [#axi4.window<base = 0x1000, size = 0x1000>],
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 128 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -220,6 +264,7 @@ module @xbar_multiple_managers_one_mismatch {
   %sub = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 256>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0, size = 0x2000>
   }
@@ -246,6 +291,7 @@ module @xbar_resizer_still_mismatch {
     access = [#axi4.window<base = 0, size = 0x1000>],
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 128 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -257,6 +303,7 @@ module @xbar_resizer_still_mismatch {
   %sub = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 256>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0, size = 0x1000>
   }
@@ -279,6 +326,7 @@ module @xbar_resizer_still_mismatch {
     access = [#axi4.window<base = 0, size = 0x1000>],
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 32 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -290,6 +338,7 @@ module @xbar_resizer_still_mismatch {
   %sub = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 256>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0, size = 0x1000>
   }
@@ -312,6 +361,7 @@ module @xbar_subordinate_resizer_mismatch {
     access = [#axi4.window<base = 0, size = 0x1000>],
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -319,6 +369,7 @@ module @xbar_subordinate_resizer_mismatch {
   %sub_wide = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 64>,
     data_width = 128 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0, size = 0x1000>
   }
@@ -380,7 +431,8 @@ module @xbar_pool_without_size {
   %bus = axi4.xbar(%clk) {
     addr_width = 32 : ui32,
     data_width = 64 : ui32,
-    txn_policy = #axi4.txn_policy<pool>
+    external_id_width = 8 : ui32,
+  txn_policy = #axi4.txn_policy<pool>
   }
 }
 
@@ -392,7 +444,8 @@ module @xbar_pool_size_without_policy {
   %bus = axi4.xbar(%clk) {
     addr_width = 32 : ui32,
     data_width = 64 : ui32,
-    pool_size = 4 : ui32
+    external_id_width = 8 : ui32,
+  pool_size = 4 : ui32
   }
 }
 
@@ -408,6 +461,7 @@ module @resizer_invalid_width {
     access = [#axi4.window<base = 0, size = 0x1000>],
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 32 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -424,6 +478,7 @@ module @cdc_depth_too_small {
     access = [#axi4.window<base = 0, size = 0x1000>],
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -438,6 +493,7 @@ module @exclusive_monitor_invalid_granularity {
   %sub = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 256>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0, size = 0x1000>
   }
@@ -452,6 +508,7 @@ module @exclusive_monitor_zero_entries {
   %sub = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 256>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0, size = 0x1000>
   }
@@ -488,6 +545,7 @@ module @xbar_burst_incr_mismatch {
     access = [#axi4.window<base = 0, size = 0x1000>],
     burst_capability = #axi4.burst_capability<incr = 256>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -496,6 +554,7 @@ module @xbar_burst_incr_mismatch {
   %sub = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 64>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0, size = 0x1000>
   }
@@ -517,6 +576,7 @@ module @xbar_burst_fixed_not_supported {
     access = [#axi4.window<base = 0, size = 0x1000>],
     burst_capability = #axi4.burst_capability<incr = 16, fixed = 8>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -525,6 +585,7 @@ module @xbar_burst_fixed_not_supported {
   %sub = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0, size = 0x1000>
   }
@@ -546,6 +607,7 @@ module @xbar_burst_wrap_not_supported {
     access = [#axi4.window<base = 0, size = 0x1000>],
     burst_capability = #axi4.burst_capability<incr = 16, wrap = [4, 8]>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -554,6 +616,7 @@ module @xbar_burst_wrap_not_supported {
   %sub = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0, size = 0x1000>
   }
@@ -579,6 +642,7 @@ module @xbar_exclusive_strict_mismatch {
     access = [#axi4.window<base = 0, size = 0x1000>],
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32,
     exclusive = true
@@ -588,6 +652,7 @@ module @xbar_exclusive_strict_mismatch {
   %sub = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0, size = 0x1000>,
     exclusive = false
@@ -598,7 +663,8 @@ module @xbar_exclusive_strict_mismatch {
   %bus = axi4.xbar(%clk, managers = [%mgr], subordinates = [%sub]) {
     addr_width = 32 : ui32,
     data_width = 64 : ui32,
-    exclusive_mode = #axi4.exclusive_mode<strict>
+    external_id_width = 8 : ui32,
+  exclusive_mode = #axi4.exclusive_mode<strict>
   }
 }
 
@@ -636,6 +702,7 @@ module @xbar_capacity_expand_insufficient {
     access = [#axi4.window<base = 0, size = 0x1000>],
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -644,6 +711,7 @@ module @xbar_capacity_expand_insufficient {
   %sub = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0, size = 0x1000>
   }
@@ -652,7 +720,8 @@ module @xbar_capacity_expand_insufficient {
   %bus = axi4.xbar(%clk, managers = [%mgr], subordinates = [%sub]) {
     addr_width = 32 : ui32,
     data_width = 64 : ui32,
-    capacity_check = #axi4.capacity_check<error>
+    external_id_width = 8 : ui32,
+  capacity_check = #axi4.capacity_check<error>
   }
 }
 
@@ -667,6 +736,7 @@ module @xbar_capacity_serialize_insufficient {
     access = [#axi4.window<base = 0, size = 0x1000>],
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -675,6 +745,7 @@ module @xbar_capacity_serialize_insufficient {
     access = [#axi4.window<base = 0, size = 0x1000>],
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 2 : ui32,
     outstanding_writes = 2 : ui32
   }
@@ -683,6 +754,7 @@ module @xbar_capacity_serialize_insufficient {
   %sub = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0, size = 0x1000>
   }
@@ -691,7 +763,8 @@ module @xbar_capacity_serialize_insufficient {
   %bus = axi4.xbar(%clk, managers = [%mgr1, %mgr2], subordinates = [%sub]) {
     addr_width = 32 : ui32,
     data_width = 64 : ui32,
-    txn_policy = #axi4.txn_policy<serialize>,
+    external_id_width = 8 : ui32,
+  txn_policy = #axi4.txn_policy<serialize>,
     capacity_check = #axi4.capacity_check<error>
   }
 }
@@ -707,6 +780,7 @@ module @xbar_capacity_pool_insufficient {
     access = [#axi4.window<base = 0, size = 0x1000>],
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -715,6 +789,7 @@ module @xbar_capacity_pool_insufficient {
   %sub = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0, size = 0x1000>
   }
@@ -723,7 +798,8 @@ module @xbar_capacity_pool_insufficient {
   %bus = axi4.xbar(%clk, managers = [%mgr], subordinates = [%sub]) {
     addr_width = 32 : ui32,
     data_width = 64 : ui32,
-    txn_policy = #axi4.txn_policy<pool>,
+    external_id_width = 8 : ui32,
+  txn_policy = #axi4.txn_policy<pool>,
     pool_size = 8 : ui32,
     capacity_check = #axi4.capacity_check<error>
   }
@@ -743,6 +819,7 @@ module @xbar_overlapping_windows_full {
     access = [#axi4.window<base = 0, size = 0x2000>],
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -751,6 +828,7 @@ module @xbar_overlapping_windows_full {
   %sub1 = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0x0, size = 0x1000>
   }
@@ -759,6 +837,7 @@ module @xbar_overlapping_windows_full {
   %sub2 = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0x0, size = 0x1000>
   }
@@ -780,6 +859,7 @@ module @xbar_overlapping_windows_partial {
     access = [#axi4.window<base = 0, size = 0x3000>],
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -789,6 +869,7 @@ module @xbar_overlapping_windows_partial {
   %sub1 = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0x0, size = 0x2000>
   }
@@ -798,6 +879,7 @@ module @xbar_overlapping_windows_partial {
   %sub2 = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0x1000, size = 0x2000>
   }
@@ -819,6 +901,7 @@ module @xbar_overlapping_windows_contained {
     access = [#axi4.window<base = 0, size = 0x10000>],
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -828,6 +911,7 @@ module @xbar_overlapping_windows_contained {
   %sub1 = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0x0, size = 0x10000>
   }
@@ -837,6 +921,7 @@ module @xbar_overlapping_windows_contained {
   %sub2 = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0x1000, size = 0x1000>
   }
@@ -858,6 +943,7 @@ module @xbar_overlapping_windows_three_subordinates {
     access = [#axi4.window<base = 0, size = 0x30000>],
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -867,6 +953,7 @@ module @xbar_overlapping_windows_three_subordinates {
   %sub1 = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0x0, size = 0x10000>
   }
@@ -876,6 +963,7 @@ module @xbar_overlapping_windows_three_subordinates {
   %sub2 = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0x8000, size = 0x10000>
   }
@@ -884,6 +972,7 @@ module @xbar_overlapping_windows_three_subordinates {
   %sub3 = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0x20000, size = 0x10000>
   }
@@ -911,6 +1000,7 @@ module @xbar_manager_clock_mismatch {
     access = [#axi4.window<base = 0x0, size = 0x1000>],
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -918,6 +1008,7 @@ module @xbar_manager_clock_mismatch {
   %sub = axi4.subordinate %clk_b {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0x0, size = 0x1000>
   }
@@ -941,6 +1032,7 @@ module @xbar_subordinate_clock_mismatch {
     access = [#axi4.window<base = 0x0, size = 0x1000>],
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -949,6 +1041,7 @@ module @xbar_subordinate_clock_mismatch {
   %sub = axi4.subordinate %clk_b {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0x0, size = 0x1000>
   }
@@ -974,6 +1067,7 @@ module @xbar_cdc_wrong_target_clock {
     access = [#axi4.window<base = 0x0, size = 0x1000>],
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -985,6 +1079,7 @@ module @xbar_cdc_wrong_target_clock {
   %sub = axi4.subordinate %clk_b {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0x0, size = 0x1000>
   }
@@ -1009,6 +1104,7 @@ module @xbar_adapter_chain_clock_mismatch {
     access = [#axi4.window<base = 0x0, size = 0x1000>],
     burst_capability = #axi4.burst_capability<incr = 128>,
     data_width = 128 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -1025,6 +1121,7 @@ module @xbar_adapter_chain_clock_mismatch {
   %sub = axi4.subordinate %slow_clk {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0x0, size = 0x1000>
   }
@@ -1050,6 +1147,7 @@ module @xbar_multiple_managers_one_clock_mismatch {
     access = [#axi4.window<base = 0x0, size = 0x1000>],
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -1060,6 +1158,7 @@ module @xbar_multiple_managers_one_clock_mismatch {
     access = [#axi4.window<base = 0x1000, size = 0x1000>],
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -1067,6 +1166,7 @@ module @xbar_multiple_managers_one_clock_mismatch {
   %sub = axi4.subordinate %clk_a {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 8 : ui32,
     window = #axi4.window<base = 0x0, size = 0x2000>
   }

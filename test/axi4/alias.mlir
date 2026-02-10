@@ -11,6 +11,7 @@ module @alias_overlap_ok {
   %sub = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0x0, size = 0x1000>
   }
@@ -38,6 +39,7 @@ module @alias_across_bridges_ok {
     access = [#axi4.window<base = 0x0, size = 0x2000>],
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -45,12 +47,14 @@ module @alias_across_bridges_ok {
   %root = axi4.xbar(%clk, managers = [%mgr]) {
     addr_width = 32 : ui32,
     data_width = 64 : ui32,
-    default_error = #axi4.error_response<decerr>
+    external_id_width = 8 : ui32,
+  default_error = #axi4.error_response<decerr>
   }
 
   %sub = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0x0, size = 0x1000>
   }
@@ -93,6 +97,7 @@ module @implicit_alias_across_bridges_error {
     ],
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -101,7 +106,8 @@ module @implicit_alias_across_bridges_error {
   %root = axi4.xbar(%clk, managers = [%mgr]) {
     addr_width = 32 : ui32,
     data_width = 64 : ui32,
-    default_error = #axi4.error_response<decerr>
+    external_id_width = 8 : ui32,
+  default_error = #axi4.error_response<decerr>
   }
 
   // expected-note @+3 {{use axi4.alias to make mirroring explicit}}
@@ -110,6 +116,7 @@ module @implicit_alias_across_bridges_error {
   %sub = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0x0, size = 0x1000>
   }
@@ -143,6 +150,7 @@ module @alias_overlap_error {
   %s0 = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0x0, size = 0x2000>
   }
@@ -151,6 +159,7 @@ module @alias_overlap_error {
   %s1 = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0x1000, size = 0x1000>
   }
@@ -175,6 +184,7 @@ module @alias_requires_base_same_xbar_error {
     access = [#axi4.window<base = 0x0, size = 0x1000>],
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -182,13 +192,15 @@ module @alias_requires_base_same_xbar_error {
   %root = axi4.xbar(%clk, managers = [%mgr]) {
     addr_width = 32 : ui32,
     data_width = 64 : ui32,
-    default_error = #axi4.error_response<decerr>
+    external_id_width = 8 : ui32,
+  default_error = #axi4.error_response<decerr>
   }
 
   // expected-note @+1 {{base subordinate defined here}}
   %sub = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0x0, size = 0x1000>
   }
@@ -227,6 +239,7 @@ module @alias_with_adapters_ok {
     ],
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -234,12 +247,14 @@ module @alias_with_adapters_ok {
   %root = axi4.xbar(%clk_a, managers = [%mgr]) {
     addr_width = 32 : ui32,
     data_width = 64 : ui32,
-    default_error = #axi4.error_response<decerr>
+    external_id_width = 8 : ui32,
+  default_error = #axi4.error_response<decerr>
   }
 
   %sub_raw = axi4.subordinate %clk_b {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0x0, size = 0x1000>
   }

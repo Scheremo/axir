@@ -147,6 +147,7 @@ module @loop_cycle_with_endpoints {
     access = [#axi4.window<base = 0x0, size = 0x1000>],
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 2 : ui32,
     outstanding_writes = 2 : ui32
   }
@@ -154,6 +155,7 @@ module @loop_cycle_with_endpoints {
   %s0 = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0x0, size = 0x1000>
   }
@@ -168,6 +170,7 @@ module @loop_cycle_with_endpoints {
     access = [#axi4.window<base = 0x0, size = 0x1000>],
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 2 : ui32,
     outstanding_writes = 2 : ui32
   }
@@ -175,6 +178,7 @@ module @loop_cycle_with_endpoints {
   %s1 = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0x2000, size = 0x1000>
   }
@@ -189,6 +193,7 @@ module @loop_cycle_with_endpoints {
     access = [#axi4.window<base = 0x0, size = 0x1000>],
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 2 : ui32,
     outstanding_writes = 2 : ui32
   }
@@ -196,6 +201,7 @@ module @loop_cycle_with_endpoints {
   %s2 = axi4.subordinate %clk {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0x4000, size = 0x1000>
   }

@@ -97,7 +97,10 @@ The effective address range is `[base, base + size)` (half-open interval).
 
 ### Declarative Transaction Model
 
-Endpoints declare their **transaction capacity**—how many transactions they can have in flight—rather than low-level ID bit widths. The crossbar implementation derives ID requirements from this.
+Endpoints declare **transaction capacity** (how many transactions they can have
+in flight). Endpoints may also declare **external ID width**
+(`external_id_width`, in bits) when boundary compatibility must be explicit.
+Crossbar internals may derive additional bookkeeping requirements from these.
 
 ### Crossbar Admission Control (Safety Invariant)
 
@@ -243,6 +246,7 @@ Declares a manager (initiator) endpoint.
 %mgr = axi4.manager(%clk : !axi4.clock) {
   access = [{ base = 0x0, size = 0x4000_0000 }],
   data_width = 64,
+  external_id_width = 8,
   outstanding_reads = 8,
   outstanding_writes = 4,
   burst_capability = { incr = { max_len = 16 } }
@@ -271,6 +275,7 @@ Declares a manager (initiator) endpoint.
 | `exclusive` | bool | `false` | Issues exclusive accesses |
 | `reorder_depth` | integer | `outstanding_reads` | Max read response reordering tolerance |
 | `write_reorder_depth` | integer | `outstanding_writes` | Max write response reordering tolerance |
+| `external_id_width` | integer | — | External AXI ID width in bits (must be ≥1 when present) |
 
 **Constraints:**
 - `access` must be non-empty
@@ -292,6 +297,7 @@ Declares a subordinate (target) endpoint.
 %sub = axi4.subordinate(%clk : !axi4.clock) {
   window = { base = 0x0, size = 0x1_0000 },
   data_width = 64,
+  external_id_width = 8,
   outstanding = 4,
   burst_capability = { incr = { max_len = 256 } }
 }
@@ -318,6 +324,7 @@ Declares a subordinate (target) endpoint.
 | `exclusive` | bool | `false` | Supports exclusive access |
 | `reorders_reads` | bool | `false` | May return read responses out of order |
 | `reorders_writes` | bool | `false` | May return write responses out of order |
+| `external_id_width` | integer | — | External AXI ID width in bits (must be ≥1 when present) |
 
 **Constraints:**
 - `window` must satisfy: `size > 0`

@@ -103,6 +103,10 @@ LogicalResult ManagerOp::verify() {
   if (dw != 32 && dw != 64 && dw != 128 && dw != 256 && dw != 512)
     return emitOpError("data_width must be 32, 64, 128, 256, or 512");
 
+  // Validate external_id_width when explicitly provided.
+  if (auto extIdWidth = getExternalIdWidth(); extIdWidth && *extIdWidth < 1)
+    return emitOpError("external_id_width must be >= 1");
+
   return success();
 }
 
@@ -148,6 +152,10 @@ LogicalResult SubordinateOp::verify() {
   uint32_t dw = getDataWidth();
   if (dw != 32 && dw != 64 && dw != 128 && dw != 256 && dw != 512)
     return emitOpError("data_width must be 32, 64, 128, 256, or 512");
+
+  // Validate external_id_width when explicitly provided.
+  if (auto extIdWidth = getExternalIdWidth(); extIdWidth && *extIdWidth < 1)
+    return emitOpError("external_id_width must be >= 1");
 
   return success();
 }

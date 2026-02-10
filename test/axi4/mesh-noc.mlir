@@ -40,6 +40,7 @@ module @mesh_2x2_noc {
     access = [#axi4.window<base = 0x00000000, size = 0x100000000>],
     burst_capability = #axi4.burst_capability<incr = 256>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 8 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -49,7 +50,8 @@ module @mesh_2x2_noc {
   %node_00 = axi4.xbar(%clk, managers = [%cpu]) {
     addr_width = 32 : ui32,
     data_width = 64 : ui32,
-    default_error = #axi4.error_response<decerr>
+    external_id_width = 8 : ui32,
+  default_error = #axi4.error_response<decerr>
   }
 
   //===--------------------------------------------------------------------===//
@@ -61,6 +63,7 @@ module @mesh_2x2_noc {
     access = [#axi4.window<base = 0x00000000, size = 0x100000000>],
     burst_capability = #axi4.burst_capability<incr = 64>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -74,6 +77,7 @@ module @mesh_2x2_noc {
   %dma_regs = axi4.subordinate %clk {
     window = #axi4.window<base = 0x0, size = 0x1000>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     burst_capability = #axi4.burst_capability<incr = 1>
   }
@@ -82,7 +86,8 @@ module @mesh_2x2_noc {
   %node_01 = axi4.xbar(%clk, managers = [%dma_split], subordinates = [%dma_regs]) {
     addr_width = 32 : ui32,
     data_width = 64 : ui32,
-    default_error = #axi4.error_response<decerr>
+    external_id_width = 8 : ui32,
+  default_error = #axi4.error_response<decerr>
   }
 
   //===--------------------------------------------------------------------===//
@@ -93,6 +98,7 @@ module @mesh_2x2_noc {
   %sram = axi4.subordinate %clk {
     window = #axi4.window<base = 0x0, size = 0x00100000>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 16 : ui32,
     burst_capability = #axi4.burst_capability<incr = 256>
   }
@@ -111,6 +117,7 @@ module @mesh_2x2_noc {
   %dram = axi4.subordinate %clk {
     window = #axi4.window<base = 0x0, size = 0x80000000>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 32 : ui32,
     burst_capability = #axi4.burst_capability<incr = 256>
   }

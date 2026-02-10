@@ -116,6 +116,9 @@ The axi4 dialect models AXI4 interconnects declaratively:
 - **Adapters**: Width converters, CDC, burst splitters, exclusive monitors
 - **Bridges**: `axi4.bridge` connects networks hierarchically
 
+`external_id_width` may be specified on managers and subordinates when the
+external AXI boundary ID width must be explicit.
+
 See `include/axi4/INTENT.md` for the full specification.
 
 ## Types
@@ -192,6 +195,7 @@ See `include/axi4/INTENT.md` for the full specification.
 %cpu = axi4.manager %clk {
   access = [#axi4.window<base = 0, size = 0x100000000>],
   data_width = 64 : ui32,
+  external_id_width = 8 : ui32,
   outstanding_reads = 8 : ui32,
   outstanding_writes = 4 : ui32,
   burst_capability = #axi4.burst_capability<incr = 256>
@@ -201,6 +205,7 @@ See `include/axi4/INTENT.md` for the full specification.
 %sram = axi4.subordinate %clk {
   window = #axi4.window<base = 0x20000000, size = 0x10000>,
   data_width = 64 : ui32,
+  external_id_width = 8 : ui32,
   outstanding = 16 : ui32,
   burst_capability = #axi4.burst_capability<incr = 256>
 }
@@ -209,6 +214,7 @@ See `include/axi4/INTENT.md` for the full specification.
 %dram = axi4.subordinate %clk {
   window = #axi4.window<base = 0x80000000, size = 0x80000000>,
   data_width = 64 : ui32,
+  external_id_width = 8 : ui32,
   outstanding = 32 : ui32,
   burst_capability = #axi4.burst_capability<incr = 256>
 }

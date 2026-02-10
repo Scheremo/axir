@@ -16,6 +16,7 @@ module @canonicalize_full_chain {
     access = [#axi4.window<base = 0x0, size = 0x1000>],
     burst_capability = #axi4.burst_capability<incr = 64>,
     data_width = 128 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -32,7 +33,8 @@ module @canonicalize_full_chain {
   %bus = axi4.xbar(%clk_b, managers = [%mgr_resized]) {
     addr_width = 32 : ui32,
     data_width = 64 : ui32,
-    default_error = #axi4.error_response<decerr>
+    external_id_width = 8 : ui32,
+  default_error = #axi4.error_response<decerr>
   }
 }
 
@@ -53,6 +55,7 @@ module @canonicalize_subordinate_chain {
   %sub = axi4.subordinate %clk_a {
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding = 4 : ui32,
     window = #axi4.window<base = 0x0, size = 0x1000>
   }
@@ -86,6 +89,7 @@ module @canonicalize_splitter_chain {
     access = [#axi4.window<base = 0x0, size = 0x1000>],
     burst_capability = #axi4.burst_capability<incr = 64>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -100,7 +104,8 @@ module @canonicalize_splitter_chain {
   %bus = axi4.xbar(%clk_b, managers = [%mgr_split]) {
     addr_width = 32 : ui32,
     data_width = 64 : ui32,
-    default_error = #axi4.error_response<decerr>
+    external_id_width = 8 : ui32,
+  default_error = #axi4.error_response<decerr>
   }
 }
 
@@ -122,6 +127,7 @@ module @canonicalize_resizer_chain {
     access = [#axi4.window<base = 0x0, size = 0x1000>],
     burst_capability = #axi4.burst_capability<incr = 64>,
     data_width = 128 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -132,7 +138,8 @@ module @canonicalize_resizer_chain {
   %bus = axi4.xbar(%clk, managers = [%final]) {
     addr_width = 32 : ui32,
     data_width = 64 : ui32,
-    default_error = #axi4.error_response<decerr>
+    external_id_width = 8 : ui32,
+  default_error = #axi4.error_response<decerr>
   }
 }
 
@@ -154,6 +161,7 @@ module @canonicalize_splitter_chain_collapse {
     access = [#axi4.window<base = 0x0, size = 0x1000>],
     burst_capability = #axi4.burst_capability<incr = 64>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -168,7 +176,8 @@ module @canonicalize_splitter_chain_collapse {
   %bus = axi4.xbar(%clk, managers = [%final]) {
     addr_width = 32 : ui32,
     data_width = 64 : ui32,
-    default_error = #axi4.error_response<decerr>
+    external_id_width = 8 : ui32,
+  default_error = #axi4.error_response<decerr>
   }
 }
 
@@ -192,6 +201,7 @@ module @canonicalize_cdc_chain_collapse {
     access = [#axi4.window<base = 0x0, size = 0x1000>],
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -202,7 +212,8 @@ module @canonicalize_cdc_chain_collapse {
   %bus = axi4.xbar(%clk_b, managers = [%final]) {
     addr_width = 32 : ui32,
     data_width = 64 : ui32,
-    default_error = #axi4.error_response<decerr>
+    external_id_width = 8 : ui32,
+  default_error = #axi4.error_response<decerr>
   }
 }
 
@@ -228,6 +239,7 @@ module @canonicalize_cdc_chain_intermediate {
     access = [#axi4.window<base = 0x0, size = 0x1000>],
     burst_capability = #axi4.burst_capability<incr = 16>,
     data_width = 64 : ui32,
+    external_id_width = 8 : ui32,
     outstanding_reads = 4 : ui32,
     outstanding_writes = 4 : ui32
   }
@@ -238,6 +250,7 @@ module @canonicalize_cdc_chain_intermediate {
   %bus = axi4.xbar(%clk_b, managers = [%final]) {
     addr_width = 32 : ui32,
     data_width = 64 : ui32,
-    default_error = #axi4.error_response<decerr>
+    external_id_width = 8 : ui32,
+  default_error = #axi4.error_response<decerr>
   }
 }

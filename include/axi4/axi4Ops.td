@@ -62,6 +62,7 @@ def axi4_ManagerOp : axi4_Op<"manager", [Axi4_EndpointOpInterface]> {
     %cpu = axi4.manager {
       access = [#axi4.window<base = 0, size = 0x40000000>],
       data_width = 64,
+      external_id_width = 8,
       clock = !axi4.clock<"sys_clk">,
       outstanding_reads = 8,
       outstanding_writes = 4,
@@ -79,6 +80,7 @@ def axi4_ManagerOp : axi4_Op<"manager", [Axi4_EndpointOpInterface]> {
     UI32Attr:$outstanding_writes,
     axi4_BurstCapabilityAttr:$burst_capability,
     // Optional attributes
+    OptionalAttr<UI32Attr>:$external_id_width,
     DefaultValuedAttr<BoolAttr, "true">:$read,
     DefaultValuedAttr<BoolAttr, "true">:$write,
     DefaultValuedAttr<BoolAttr, "false">:$exclusive,
@@ -113,6 +115,7 @@ def axi4_SubordinateOp : axi4_Op<"subordinate", [Axi4_EndpointOpInterface]> {
     %sram = axi4.subordinate %clk : !axi4.clock<"sys_clk"> {
       window = #axi4.window<base = 0, size = 0x10000>,
       data_width = 64,
+      external_id_width = 8,
       outstanding = 4,
       burst_capability = #axi4.burst_capability<incr = 256>
     }
@@ -128,6 +131,7 @@ def axi4_SubordinateOp : axi4_Op<"subordinate", [Axi4_EndpointOpInterface]> {
     UI32Attr:$outstanding,
     axi4_BurstCapabilityAttr:$burst_capability,
     // Optional attributes
+    OptionalAttr<UI32Attr>:$external_id_width,
     DefaultValuedAttr<BoolAttr, "true">:$read,
     DefaultValuedAttr<BoolAttr, "true">:$write,
     DefaultValuedAttr<BoolAttr, "false">:$exclusive,
